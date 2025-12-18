@@ -50,6 +50,8 @@ class Sapo_WooCommerce_Sync {
         require_once SAPO_SYNC_PATH . 'includes/sdk/class-sapo-client.php';
         require_once SAPO_SYNC_PATH . 'includes/sdk/resources/class-sapo-product-resource.php';
         require_once SAPO_SYNC_PATH . 'includes/sdk/resources/class-sapo-variant-resource.php';
+        require_once SAPO_SYNC_PATH . 'includes/sdk/resources/class-sapo-collect-resource.php';
+        require_once SAPO_SYNC_PATH . 'includes/sdk/resources/class-sapo-collection-resource.php';
         
         require_once SAPO_SYNC_PATH . 'includes/database/class-sapo-db.php';
         
@@ -63,6 +65,9 @@ class Sapo_WooCommerce_Sync {
         require_once SAPO_SYNC_PATH . 'includes/api/class-sapo-api-config.php';
         require_once SAPO_SYNC_PATH . 'includes/api/class-sapo-api-product.php';
         require_once SAPO_SYNC_PATH . 'includes/api/class-sapo-api-sync.php';
+        require_once SAPO_SYNC_PATH . 'includes/api/class-sapo-api-attributes.php';
+        require_once SAPO_SYNC_PATH . 'includes/api/class-sapo-api-categories.php';
+        require_once SAPO_SYNC_PATH . 'includes/api/class-sapo-api-debug.php';
         
         require_once SAPO_SYNC_PATH . 'admin/class-sapo-admin.php';
         
@@ -94,6 +99,9 @@ class Sapo_WooCommerce_Sync {
         Sapo_API_Config::instance();
         Sapo_API_Product::instance();
         Sapo_API_Sync::instance();
+        Sapo_API_Attributes::instance();
+        Sapo_API_Categories::instance();
+        Sapo_API_Debug::instance();
     }
     
     public function activate() {

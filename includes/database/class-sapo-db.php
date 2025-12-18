@@ -68,6 +68,153 @@ class Sapo_DB {
         ) $charset_collate;";
         
         dbDelta($sql_webhooks);
+        
+        $sql_mappings = "CREATE TABLE {$wpdb->prefix}sapo_attribute_mappings (
+            id INT(11) NOT NULL AUTO_INCREMENT,
+            sapo_option VARCHAR(20) NOT NULL,
+            wc_attribute_name VARCHAR(255) NOT NULL,
+            wc_attribute_slug VARCHAR(255) NOT NULL,
+            enabled TINYINT(1) DEFAULT 1,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY unique_option (sapo_option)
+        ) $charset_collate;";
+        
+        dbDelta($sql_mappings);
+        
+        $sql_category_mappings = "CREATE TABLE {$wpdb->prefix}sapo_category_mappings (
+            id INT(11) NOT NULL AUTO_INCREMENT,
+            sapo_collection_id BIGINT(20) NOT NULL,
+            sapo_collection_name VARCHAR(255),
+            wc_category_id BIGINT(20) NOT NULL,
+            wc_category_name VARCHAR(255),
+            auto_create TINYINT(1) DEFAULT 0,
+            enabled TINYINT(1) DEFAULT 1,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY unique_collection (sapo_collection_id),
+            KEY idx_wc_category (wc_category_id)
+        ) $charset_collate;";
+        
+        dbDelta($sql_category_mappings);
+    }
+    
+    public static function get_attribute_mapping($sapo_option) {
+        global $wpdb;
+        
+        $table = $wpdb->prefix . 'sapo_attribute_mappings';
+        
+        $sql = $wpdb->prepare(
+            "SELECT * FROM {$table} WHERE sapo_option = %s AND enabled = 1",
+            $sapo_option
+        );
+        
+        return $wpdb->get_row($sql);
+    }
+    
+    public static function get_all_attribute_mappings() {
+        global $wpdb;
+        
+        $table = $wpdb->prefix . 'sapo_attribute_mappings';
+        
+        return $wpdb->get_results("SELECT * FROM {$table} ORDER BY sapo_option");
+    }
+    
+    public static function save_attribute_mapping($sapo_option, $wc_attribute_name, $wc_attribute_slug) {
+        global $wpdb;
+        
+        $table = $wpdb->prefix . 'sapo_attribute_mappings';
+        
+        $existing = self::get_attribute_mapping($sapo_option);
+        
+        if ($existing) {
+            return $wpdb->update(
+                $table,
+                [
+                    'wc_attribute_name' => $wc_attribute_name,
+                    'wc_attribute_slug' => $wc_attribute_slug,
+                    'updated_at' => current_time('mysql')
+                ],
+                ['sapo_option' => $sapo_option]
+            );
+        } else {
+            return $wpdb->insert($table, [
+                'sapo_option' => $sapo_option,
+                'wc_attribute_name' => $wc_attribute_name,
+                'wc_attribute_slug' => $wc_attribute_slug,
+                'created_at' => current_time('mysql')
+            ]);
+        }
+    }
+    
+    public static function delete_attribute_mapping($sapo_option) {
+        global $wpdb;
+        
+        $table = $wpdb->prefix . 'sapo_attribute_mappings';
+        
+        return $wpdb->delete($table, ['sapo_option' => $sapo_option]);
+    }
+    
+    public static function get_category_mapping($sapo_collection_id) {
+        global $wpdb;
+        
+        $table = $wpdb->prefix . 'sapo_category_mappings';
+        
+        $sql = $wpdb->prepare(
+            "SELECT * FROM {$table} WHERE sapo_collection_id = %d AND enabled = 1",
+            $sapo_collection_id
+        );
+        
+        return $wpdb->get_row($sql);
+    }
+    
+    public static function get_all_category_mappings() {
+        global $wpdb;
+        
+        $table = $wpdb->prefix . 'sapo_category_mappings';
+        
+        return $wpdb->get_results("SELECT * FROM {$table} ORDER BY sapo_collection_name");
+    }
+    
+    public static function save_category_mapping($sapo_collection_id, $sapo_collection_name, $wc_category_id, $wc_category_name, $auto_create = false) {
+        global $wpdb;
+        
+        $table = $wpdb->prefix . 'sapo_category_mappings';
+        
+        $existing = self::get_category_mapping($sapo_collection_id);
+        
+        if ($existing) {
+            return $wpdb->update(
+                $table,
+                [
+                    'sapo_collection_name' => $sapo_collection_name,
+                    'wc_category_id' => $wc_category_id,
+                    'wc_category_name' => $wc_category_name,
+                    'auto_create' => $auto_create ? 1 : 0,
+                    'updated_at' => current_time('mysql')
+                ],
+                ['sapo_collection_id' => $sapo_collection_id]
+            );
+        } else {
+            return $wpdb->insert($table, [
+                'sapo_collection_id' => $sapo_collection_id,
+                'sapo_collection_name' => $sapo_collection_name,
+                'wc_category_id' => $wc_category_id,
+                'wc_category_name' => $wc_category_name,
+                'auto_create' => $auto_create ? 1 : 0,
+                'created_at' => current_time('mysql')
+            ]);
+        }
+    }
+    
+    public static function delete_category_mapping($sapo_collection_id) {
+        global $wpdb;
+        
+        $table = $wpdb->prefix . 'sapo_category_mappings';
+        
+        return $wpdb->delete($table, ['sapo_collection_id' => $sapo_collection_id]);
     }
     
     public static function get_product_mapping($sapo_product_id, $sapo_variant_id = null) {

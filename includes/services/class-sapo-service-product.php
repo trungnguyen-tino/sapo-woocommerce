@@ -127,7 +127,7 @@ class Sapo_Service_Product {
             
             if ($has_variants) {
                 foreach ($sapo_product['variants'] as $variant) {
-                    $variation_id = $helper->create_variation($wc_product_id, $variant);
+                    $variation_id = $helper->create_variation($wc_product_id, $variant, $sapo_product);
                     
                     if ($variation_id && !is_wp_error($variation_id)) {
                         Sapo_DB::create_product_mapping([

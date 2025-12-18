@@ -161,6 +161,14 @@ class Sapo_Client {
         return new Sapo_Variant_Resource($this);
     }
     
+    public function collects() {
+        return new Sapo_Collect_Resource($this);
+    }
+    
+    public function collections() {
+        return new Sapo_Collection_Resource($this);
+    }
+    
     private function encrypt($value) {
         if (empty($value)) {
             return '';
