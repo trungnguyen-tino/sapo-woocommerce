@@ -1,0 +1,9 @@
+.DS_Store
+.idea/
+*.log
+*.zip
+node_modules/
+vendor/
+composer.lock
+package-lock.json
+.vscode/
