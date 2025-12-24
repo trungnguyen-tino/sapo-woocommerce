@@ -73,6 +73,19 @@ class Sapo_Service_Webhook {
             case 'products/delete':
                 $this->handle_product_delete($data);
                 break;
+                
+            case 'orders/create':
+            case 'orders/update':
+            case 'orders/finalized':
+            case 'orders/cancelled':
+            case 'orders/fulfilled':
+                $this->handle_order_update($data);
+                break;
+                
+            case 'customers/create':
+            case 'customers/update':
+                $this->handle_customer_update($data);
+                break;
         }
     }
     
@@ -120,6 +133,34 @@ class Sapo_Service_Webhook {
                 'info',
                 'Product deleted in SAPO'
             );
+        }
+    }
+    
+    private function handle_order_update($data) {
+        if (!isset($data['id'])) {
+            return;
+        }
+        
+        $order_service = new Sapo_Service_Order();
+        
+        try {
+            $order_service->update_wc_order_from_sapo($data['id']);
+        } catch (Exception $e) {
+            Sapo_Service_Log::log('webhook', $data['id'], 0, 'order_update', 'error', $e->getMessage());
+        }
+    }
+    
+    private function handle_customer_update($data) {
+        if (!isset($data['id'])) {
+            return;
+        }
+        
+        $customer_service = new Sapo_Service_Customer();
+        
+        try {
+            $customer_service->sync_customer_from_sapo($data['id']);
+        } catch (Exception $e) {
+            Sapo_Service_Log::log('webhook', $data['id'], 0, 'customer_update', 'error', $e->getMessage());
         }
     }
 }

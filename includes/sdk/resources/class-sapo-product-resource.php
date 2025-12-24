@@ -66,4 +66,36 @@ class Sapo_Product_Resource {
         
         return $this->all($params);
     }
+    
+    public function create($product_data, $location_id = null) {
+        $headers = [];
+        
+        if ($location_id) {
+            $headers['X-Sapo-LocationId'] = $location_id;
+        }
+        
+        return $this->client->request('POST', '/admin/products.json', [], [
+            'product' => $product_data
+        ], $headers);
+    }
+    
+    public function update($product_id, $product_data) {
+        return $this->client->request('PUT', "/admin/products/{$product_id}.json", [], [
+            'product' => $product_data
+        ]);
+    }
+    
+    public function delete($product_id) {
+        return $this->client->request('DELETE', "/admin/products/{$product_id}.json");
+    }
+    
+    public function create_image($product_id, $image_data) {
+        return $this->client->request('POST', "/admin/products/{$product_id}/images.json", [], [
+            'image' => $image_data
+        ]);
+    }
+    
+    public function delete_image($product_id, $image_id) {
+        return $this->client->request('DELETE', "/admin/products/{$product_id}/images/{$image_id}.json");
+    }
 }

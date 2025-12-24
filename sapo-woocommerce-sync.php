@@ -52,6 +52,9 @@ class Sapo_WooCommerce_Sync {
         require_once SAPO_SYNC_PATH . 'includes/sdk/resources/class-sapo-variant-resource.php';
         require_once SAPO_SYNC_PATH . 'includes/sdk/resources/class-sapo-collect-resource.php';
         require_once SAPO_SYNC_PATH . 'includes/sdk/resources/class-sapo-collection-resource.php';
+        require_once SAPO_SYNC_PATH . 'includes/sdk/resources/class-sapo-order-resource.php';
+        require_once SAPO_SYNC_PATH . 'includes/sdk/resources/class-sapo-customer-resource.php';
+        require_once SAPO_SYNC_PATH . 'includes/sdk/resources/class-sapo-location-resource.php';
         
         require_once SAPO_SYNC_PATH . 'includes/database/class-sapo-db.php';
         
@@ -61,6 +64,8 @@ class Sapo_WooCommerce_Sync {
         require_once SAPO_SYNC_PATH . 'includes/services/class-sapo-service-sync.php';
         require_once SAPO_SYNC_PATH . 'includes/services/class-sapo-service-webhook.php';
         require_once SAPO_SYNC_PATH . 'includes/services/class-sapo-service-log.php';
+        require_once SAPO_SYNC_PATH . 'includes/services/class-sapo-service-order.php';
+        require_once SAPO_SYNC_PATH . 'includes/services/class-sapo-service-customer.php';
         
         require_once SAPO_SYNC_PATH . 'includes/api/class-sapo-api-config.php';
         require_once SAPO_SYNC_PATH . 'includes/api/class-sapo-api-product.php';
@@ -73,7 +78,11 @@ class Sapo_WooCommerce_Sync {
         
         require_once SAPO_SYNC_PATH . 'helpers/SapoWcProduct.php';
         require_once SAPO_SYNC_PATH . 'helpers/SapoWcCategory.php';
+        require_once SAPO_SYNC_PATH . 'helpers/SapoWcOrder.php';
+        require_once SAPO_SYNC_PATH . 'helpers/SapoWcCustomer.php';
         require_once SAPO_SYNC_PATH . 'helpers/functions.php';
+        
+        require_once SAPO_SYNC_PATH . 'includes/class-sapo-wc-hooks.php';
     }
     
     private function init_hooks() {
@@ -102,6 +111,8 @@ class Sapo_WooCommerce_Sync {
         Sapo_API_Attributes::instance();
         Sapo_API_Categories::instance();
         Sapo_API_Debug::instance();
+        
+        Sapo_WC_Hooks::instance();
     }
     
     public function activate() {

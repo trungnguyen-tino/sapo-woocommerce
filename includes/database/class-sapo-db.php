@@ -99,6 +99,33 @@ class Sapo_DB {
         ) $charset_collate;";
         
         dbDelta($sql_category_mappings);
+        
+        $sql_order_mappings = "CREATE TABLE {$wpdb->prefix}sapo_order_mappings (
+            id INT(11) NOT NULL AUTO_INCREMENT,
+            sapo_order_id BIGINT(20) NOT NULL,
+            wc_order_id BIGINT(20) NOT NULL,
+            sync_status VARCHAR(20) DEFAULT 'synced',
+            synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY unique_sapo_order (sapo_order_id),
+            UNIQUE KEY unique_wc_order (wc_order_id)
+        ) $charset_collate;";
+        
+        dbDelta($sql_order_mappings);
+        
+        $sql_customer_mappings = "CREATE TABLE {$wpdb->prefix}sapo_customer_mappings (
+            id INT(11) NOT NULL AUTO_INCREMENT,
+            sapo_customer_id BIGINT(20) NOT NULL,
+            wc_customer_id BIGINT(20) NOT NULL,
+            synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY unique_sapo_customer (sapo_customer_id),
+            UNIQUE KEY unique_wc_customer (wc_customer_id)
+        ) $charset_collate;";
+        
+        dbDelta($sql_customer_mappings);
     }
     
     public static function get_attribute_mapping($sapo_option) {
@@ -315,6 +342,91 @@ class Sapo_DB {
         $sql = $wpdb->prepare(
             "SELECT * FROM {$table} WHERE wc_product_id = %d",
             $wc_product_id
+        );
+        
+        return $wpdb->get_row($sql);
+    }
+    
+    public static function create_order_mapping($data) {
+        global $wpdb;
+        
+        $table = $wpdb->prefix . 'sapo_order_mappings';
+        
+        $insert_data = [
+            'sapo_order_id' => $data['sapo_order_id'],
+            'wc_order_id' => $data['wc_order_id'],
+            'sync_status' => $data['sync_status'] ?? 'synced',
+            'synced_at' => current_time('mysql')
+        ];
+        
+        $wpdb->insert($table, $insert_data);
+        
+        return $wpdb->insert_id;
+    }
+    
+    public static function get_order_mapping($wc_order_id) {
+        global $wpdb;
+        
+        $table = $wpdb->prefix . 'sapo_order_mappings';
+        
+        $sql = $wpdb->prepare(
+            "SELECT * FROM {$table} WHERE wc_order_id = %d",
+            $wc_order_id
+        );
+        
+        return $wpdb->get_row($sql);
+    }
+    
+    public static function get_order_mapping_by_sapo($sapo_order_id) {
+        global $wpdb;
+        
+        $table = $wpdb->prefix . 'sapo_order_mappings';
+        
+        $sql = $wpdb->prepare(
+            "SELECT * FROM {$table} WHERE sapo_order_id = %d",
+            $sapo_order_id
+        );
+        
+        return $wpdb->get_row($sql);
+    }
+    
+    public static function create_customer_mapping($data) {
+        global $wpdb;
+        
+        $table = $wpdb->prefix . 'sapo_customer_mappings';
+        
+        $insert_data = [
+            'sapo_customer_id' => $data['sapo_customer_id'],
+            'wc_customer_id' => $data['wc_customer_id'],
+            'synced_at' => current_time('mysql')
+        ];
+        
+        $wpdb->insert($table, $insert_data);
+        
+        return $wpdb->insert_id;
+    }
+    
+    public static function get_customer_mapping_by_wc($wc_customer_id) {
+        global $wpdb;
+        
+        $table = $wpdb->prefix . 'sapo_customer_mappings';
+        
+        $sql = $wpdb->prepare(
+            "SELECT * FROM {$table} WHERE wc_customer_id = %d",
+            $wc_customer_id
+        );
+        
+        return $wpdb->get_row($sql);
+    }
+    
+    public static function get_customer_mapping_by_sapo($sapo_customer_id) {
+        global $wpdb;
+        
+        $table = $wpdb->prefix . 'sapo_customer_mappings';
+        
+        $sql = $wpdb->prepare(
+            "SELECT * FROM {$table} WHERE sapo_customer_id = %d",
+            $sapo_customer_id
         );
         
         return $wpdb->get_row($sql);

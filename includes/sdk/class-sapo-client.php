@@ -84,7 +84,7 @@ class Sapo_Client {
         return time() >= ($this->token_expires - 300);
     }
     
-    public function request($method, $path, $params = [], $data = null) {
+    public function request($method, $path, $params = [], $data = null, $custom_headers = []) {
         if ($this->is_token_expired() && !empty($this->refresh_token)) {
             $this->refresh_access_token();
         }
@@ -97,12 +97,18 @@ class Sapo_Client {
         
         $url = $this->build_url($path, $params);
         
+        $headers = [
+            'Authorization' => 'Bearer ' . $this->access_token,
+            'Content-Type' => 'application/json'
+        ];
+        
+        if (!empty($custom_headers)) {
+            $headers = array_merge($headers, $custom_headers);
+        }
+        
         $args = [
             'method' => strtoupper($method),
-            'headers' => [
-                'Authorization' => 'Bearer ' . $this->access_token,
-                'Content-Type' => 'application/json'
-            ],
+            'headers' => $headers,
             'timeout' => 30
         ];
         
@@ -125,7 +131,7 @@ class Sapo_Client {
         if ($status_code === 401) {
             if (!empty($this->refresh_token)) {
                 $this->refresh_access_token();
-                return $this->request($method, $path, $params, $data);
+                return $this->request($method, $path, $params, $data, $custom_headers);
             }
             throw new Sapo_Auth_Exception('Unauthorized', 401, $response_data);
         }
@@ -167,6 +173,18 @@ class Sapo_Client {
     
     public function collections() {
         return new Sapo_Collection_Resource($this);
+    }
+    
+    public function orders() {
+        return new Sapo_Order_Resource($this);
+    }
+    
+    public function customers() {
+        return new Sapo_Customer_Resource($this);
+    }
+    
+    public function locations() {
+        return new Sapo_Location_Resource($this);
     }
     
     private function encrypt($value) {
